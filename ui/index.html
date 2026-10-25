@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DeskMount</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <script>
+    try {
+      const mode = JSON.parse(localStorage.getItem('deskmount.theme')) || 'dark';
+      const light = mode === 'light' || (mode === 'system' && matchMedia('(prefers-color-scheme: light)').matches);
+      document.documentElement.dataset.theme = light ? 'light' : 'dark';
+    } catch { document.documentElement.dataset.theme = 'dark'; }
+  </script>
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    {"imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }}
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="logo.png" alt="">
+      DeskMount
+    </div>
+    <div class="cfg">
+      <select id="configSelect" aria-label="Config"></select>
+      <span id="dirty" class="dirty" hidden title="Unsaved changes">unsaved</span>
+    </div>
+    <div class="actions">
+      <div class="menu">
+        <button id="newBtn" type="button">New ▾</button>
+        <div class="menu-list" id="newMenu" hidden>
+          <button type="button" data-template="prongs">Prong adapter (device with channels)</button>
+          <button type="button" data-template="plate">Plate adapter (screws / keyholes)</button>
+          <button type="button" data-template="copy">Copy of current config</button>
+        </div>
+      </div>
+      <button id="saveBtn" type="button" title="Save (Ctrl+S)">Save</button>
+      <button id="saveAsBtn" type="button">Save as…</button>
+      <span class="sep"></span>
+      <button id="themeBtn" type="button" class="theme-btn" title="Theme: dark / light / follow system">Dark</button>
+      <label class="switch" title="Rebuild automatically after every change"><input type="checkbox" id="liveToggle" checked><span>Live</span></label>
+      <button id="buildBtn" type="button">Build</button>
+      <button id="exportBtn" type="button" class="primary">Export files</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="panel form-panel">
+      <form id="form" autocomplete="off" onsubmit="return false"></form>
+    </aside>
+
+    <section class="viewer">
+      <div id="canvasHost"></div>
+      <div class="toolbar">
+        <div class="seg" role="tablist">
+          <button type="button" data-view="assembly" class="on">Assembly</button>
+          <button type="button" data-view="layout">Print layout</button>
+        </div>
+        <label class="slider" data-only="assembly">Explode
+          <input type="range" id="explode" min="0" max="1" step="0.01" value="0">
+        </label>
+        <label class="slider">Section
+          <select id="sectionAxis">
+            <option value="off">off</option>
+            <option value="x">X</option>
+            <option value="y">Y</option>
+          </select>
+          <input type="range" id="sectionPos" min="0" max="1" step="0.002" value="0.5" disabled>
+        </label>
+        <button type="button" id="fitBtn" title="Fit view">Fit</button>
+      </div>
+      <div class="legend" id="legend"></div>
+      <div class="busy" id="busy" hidden><span class="spinner"></span>Building…</div>
+      <div class="banner" id="errorBanner" hidden></div>
+      <div class="hover" id="hoverLabel" hidden></div>
+      <div class="hint">drag to rotate · right-drag to pan · wheel to zoom</div>
+    </section>
+
+    <aside class="panel report-panel" id="report"></aside>
+  </main>
+
+  <dialog id="nameDialog">
+    <form method="dialog" id="nameForm">
+      <h3>Save config as</h3>
+      <input id="nameInput" pattern="[A-Za-z0-9_\-]{1,64}" required placeholder="e.g. modem_office">
+      <p class="muted">Letters, digits, - and _. Saved to configs/&lt;name&gt;.yaml</p>
+      <menu>
+        <button value="cancel" type="button" id="nameCancel">Cancel</button>
+        <button value="ok" class="primary">Save</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

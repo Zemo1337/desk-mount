@@ -1,0 +1,18 @@
+# Quick test print for the dovetail clearance and the detent click
+# (about 15 min, ~20 g). Print it with the same printer and material as the
+# real mounts and adjust dovetail.clearance / rail.detent until it slides and
+# clicks nicely; the values then go into the device configs.
+
+adapter: plate
+
+device:
+  height: 10
+
+plate:
+  width: 40
+  length: 50
+
+rail:
+  axis: y
+  positions: [0]
+  holes: {count: 2}

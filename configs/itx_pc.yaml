@@ -1,0 +1,27 @@
+# ITX PC, one adapter with two through-prongs left and right of the middle bolts.
+# The prongs enter through wall A, pass the full channel and rest in wall B.
+# Two parallel desk rails carry the adapter.
+# All numbers are placeholders until measured.
+
+device:
+  width: 210       # case size across the channels (distance between the walls)
+  mass: 6.0        # kg
+
+prong:
+  width: 30
+  thickness: 5     # channel height minus some play
+  offset: 4        # case top surface down to the top edge of the channel
+
+prongs:
+  - {side: through, y: -60}
+  - {side: through, y: 60}
+
+base:
+  frame: 16        # open the middle of the base, keep 16 mm strips along walls, ends and rails
+
+walls:
+  thickness: 7
+
+rail:
+  axis: y
+  positions: [-50, 50]

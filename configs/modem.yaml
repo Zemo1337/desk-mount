@@ -1,0 +1,23 @@
+# Modem / router standing upright, top face against the adapter.
+# Walls sit against the front (side A) and back (side B) faces; the slots do
+# not go through, so each side gets its own short prongs.
+# The adapter slides onto one desk rail along Y.
+# All numbers are placeholders until measured.
+
+device:
+  width: 55        # front-to-back size of the modem (distance between the walls)
+  mass: 0.6        # kg, used for the strength estimate
+
+prong:             # defaults for every prong below
+  width: 9         # slot width along the face
+  thickness: 2.5   # slot height (prong thickness)
+  offset: 3        # top surface of the modem down to the top edge of the slot
+  length: 8        # how deep the prong goes into the slot
+
+prongs:
+  - {side: a, y: 0, count: 3, pitch: 13}   # middle slot group on the front
+  - {side: b, y: 0, count: 3, pitch: 13}   # same on the back (delete if the back has none)
+
+rail:
+  axis: y          # push the modem in parallel to its faces
+  positions: [0]

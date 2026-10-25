@@ -1,0 +1,21 @@
+# Power strip with two keyhole slots on its back.
+# Plate adapter: screws go into the pilot holes from the device side and their
+# heads stay proud so the keyholes hang on them.
+# The plate slides across the strip (X) on two short rails.
+# All numbers are placeholders until measured.
+
+adapter: plate
+
+device:
+  height: 40       # only used for the preview
+
+plate:
+  width: 50        # across the power strip (X)
+  length: 200      # along the power strip (Y)
+  holes: [[0, -75], [0, 75]]   # keyhole positions, relative to the plate centre
+  hole: 2.5        # pilot hole for the keyhole screws
+  head: 0          # no countersink
+
+rail:
+  axis: x
+  positions: [-45, 45]

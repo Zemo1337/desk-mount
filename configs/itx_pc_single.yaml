@@ -1,0 +1,25 @@
+# ITX PC alternative: a narrow single-prong adapter, print it twice and mount
+# one on each side of the middle bolts, each on its own rail.
+# Strength is checked for half the mass.
+
+device:
+  width: 210
+  mass: 3.0        # half of the PC per adapter
+
+prong:
+  width: 30
+  thickness: 5
+  offset: 4
+
+prongs:
+  - {side: through, y: 0}
+
+base:
+  frame: 16
+
+walls:
+  thickness: 7
+
+rail:
+  axis: y
+  positions: [0]
