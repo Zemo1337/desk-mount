@@ -1,27 +1,33 @@
 # ITX PC, one adapter with two through-prongs left and right of the middle bolts.
-# The prongs enter through wall A, pass the full channel and rest in wall B.
+# Case: 125 mm frame, 5-6 mm open gap on each side, then 5 mm plexi side panels.
+# The walls drop into the side gaps (max ~5 mm thick, max 14 mm deep down to the
+# side panel threads). The prongs run through the 5-6 mm channel under the 2 mm
+# aluminium top panel and end flush with the walls; the side panels keep them in.
+# Mounting: side panels off -> adapter on top -> prongs in -> side panels on.
 # Two parallel desk rails carry the adapter.
-# All numbers are placeholders until measured.
 
 device:
-  width: 210       # case size across the channels (distance between the walls)
-  mass: 6.0        # kg
+  width: 125       # frame width between the side gaps
+  mass: 4.7        # kg
 
 prong:
-  width: 30
-  thickness: 5     # channel height minus some play
-  offset: 4        # case top surface down to the top edge of the channel
+  width: 40        # channel is ~140 mm long; keeps clear of the middle and edge bolts
+  thickness: 4.5   # channel 5-6 mm tall
+  offset: 2        # 2 mm aluminium top panel above the channel
 
 prongs:
-  - {side: through, y: -60}
-  - {side: through, y: 60}
+  - {side: through, y: -35}
+  - {side: through, y: 35}
+
+head:
+  style: none      # flush prongs, held in by the side panels
 
 base:
   frame: 16        # open the middle of the base, keep 16 mm strips along walls, ends and rails
 
 walls:
-  thickness: 7
+  thickness: 4     # side gap 5-6 mm, leaves 0.5-1.5 mm after the 0.5 mm side play
 
 rail:
   axis: y
-  positions: [-50, 50]
+  positions: [-35, 35]

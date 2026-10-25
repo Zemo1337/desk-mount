@@ -59,7 +59,11 @@ const SECTIONS = [
     { k: 'rail.holes.head', label: 'Desk screw head', unit: 'mm', type: 'num', help: 'Countersink diameter.' },
     { k: 'rail.holes.count', label: 'Desk screws per side', type: 'int', auto: true, help: 'auto = about one every 80 mm, at least 2.' },
   ] },
-  { title: 'Prong retention', when: P, advanced: true, fields: [
+  { title: 'Prong retention', when: P, fields: [
+    { k: 'head.style', label: 'Retention', type: 'select', options: [['bar', 'Head bar + screw'], ['none', 'Flush, held by the device']],
+      help: 'Head bar: prongs of one side are joined by a bar outside the wall and screwed to it. Flush: plain prongs end flush with the walls and something on the device (e.g. side panels) stops them sliding out.' },
+    { k: 'walls.below', label: 'Wall below windows (flush)', unit: 'mm', type: 'num', help: 'Wall material below the prong windows when the retention is flush.' },
+    { k: 'head.inset', label: 'Flush inset', unit: 'mm', type: 'num', help: 'Flush prongs stop this far inside the outer wall faces.' },
     { k: 'head.thickness', label: 'Head bar thickness', unit: 'mm', type: 'num', help: 'Bar outside the wall that joins the prongs of one side.' },
     { k: 'head.margin', label: 'Head bar margin', unit: 'mm', type: 'num', help: 'Head bar length beyond the outer prongs.' },
     { k: 'head.screws', label: 'Screws per head bar', type: 'int', auto: true, help: 'auto = 1 below 50 mm bar length, else 2.' },

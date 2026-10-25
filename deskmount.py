@@ -36,9 +36,9 @@ DEFAULTS = {
     "device": {"width": None, "mass": 0.0, "height": 60.0, "length": None},
     "fit": {"side": 0.5, "top": 0.5, "window": 0.3},
     "base": {"length": "auto", "thickness": "auto", "overhang": 0.0, "margin": 4.0, "frame": 0.0},
-    "walls": {"thickness": 6.0, "sides": "auto", "height": "auto"},
+    "walls": {"thickness": 6.0, "sides": "auto", "height": "auto", "below": 3.0},
     "prong": {"width": 10.0, "thickness": 3.0, "offset": 3.0, "length": 10.0, "tip_chamfer": 0.8},
-    "head": {"thickness": 4.0, "margin": 3.0, "screws": "auto"},
+    "head": {"style": "bar", "thickness": 4.0, "margin": 3.0, "screws": "auto", "inset": 0.2},
     "screw": {"clearance": 3.4, "pilot": 2.5, "head": 6.0, "edge": 2.5},
     "through_protrusion": 1.0,
     "plate": {"length": 80.0, "width": 40.0, "holes": [], "hole": 2.5, "head": 0.0},
@@ -312,6 +312,9 @@ class ProngAdapter:
             groups.setdefault(p["group"], []).append(p)
         sc = self.cfg["screw"]
         hd = self.cfg["head"]
+        self.flush = str(hd["style"]).lower() == "none"
+        if str(hd["style"]).lower() not in ("bar", "none"):
+            raise ConfigError(f"head.style must be bar or none, got {hd['style']!r}")
         self.groups = []
         for name, members in groups.items():
             sides = {"a" if p["side"] == "through" else p["side"] for p in members}
@@ -323,19 +326,23 @@ class ProngAdapter:
             p0 = members[0]
             z0 = self.z_dev + p0["offset"]
             z1 = z0 + p0["thickness"]
-            screw_z = z1 + self.c + sc["edge"] + sc["clearance"] / 2
-            bar_z1 = screw_z + sc["clearance"] / 2 + sc["edge"]
             y0 = min(p["y"] - p["width"] / 2 for p in members) - hd["margin"]
             y1 = max(p["y"] + p["width"] / 2 for p in members) + hd["margin"]
-            min_len = sc["head"] + 2 * sc["edge"]
-            if y1 - y0 < min_len:
-                grow = (min_len - (y1 - y0)) / 2
-                y0, y1 = y0 - grow, y1 + grow
-            screws = hd["screws"]
-            if screws == "auto":
-                screws = 1 if y1 - y0 < 50 else 2
-            inset = sc["head"] / 2 + 1.0
-            screw_y = spread(y0 + inset, y1 - inset, int(screws)) if screws > 1 else [(y0 + y1) / 2]
+            if self.flush:
+                screw_z, screw_y = None, []
+                bar_z1 = z1 + self.c + float(self.cfg["walls"]["below"])
+            else:
+                screw_z = z1 + self.c + sc["edge"] + sc["clearance"] / 2
+                bar_z1 = screw_z + sc["clearance"] / 2 + sc["edge"]
+                min_len = sc["head"] + 2 * sc["edge"]
+                if y1 - y0 < min_len:
+                    grow = (min_len - (y1 - y0)) / 2
+                    y0, y1 = y0 - grow, y1 + grow
+                screws = hd["screws"]
+                if screws == "auto":
+                    screws = 1 if y1 - y0 < 50 else 2
+                inset = sc["head"] / 2 + 1.0
+                screw_y = spread(y0 + inset, y1 - inset, int(screws)) if screws > 1 else [(y0 + y1) / 2]
             self.groups.append({
                 "name": name, "side": side, "prongs": members, "z0": z0, "z1": z1,
                 "screw_z": screw_z, "bar_z1": bar_z1, "y0": y0, "y1": y1, "screw_y": screw_y,
@@ -375,6 +382,8 @@ class ProngAdapter:
 
     def prong_tip(self, p):
         if p["side"] == "through":
+            if self.flush:
+                return self.x_out["b"] - self.cfg["head"]["inset"]
             return self.x_out["b"] + self.cfg["through_protrusion"]
         if p["side"] == "a":
             return -self.dw / 2 + p["length"]
@@ -411,10 +420,14 @@ class ProngAdapter:
 
     def comb(self, g):
         s = g["side"]
-        ht = self.cfg["head"]["thickness"]
+        hd = self.cfg["head"]
         xo = self.x_out[s]
-        hx0, hx1 = (xo - ht, xo) if s == "a" else (xo, xo + ht)
-        part = block(hx0, hx1, g["y0"], g["y1"], g["z0"], g["bar_z1"])
+        if self.flush:
+            part = None
+            hx0 = hx1 = xo + (hd["inset"] if s == "a" else -hd["inset"])
+        else:
+            hx0, hx1 = (xo - hd["thickness"], xo) if s == "a" else (xo, xo + hd["thickness"])
+            part = block(hx0, hx1, g["y0"], g["y1"], g["z0"], g["bar_z1"])
         for p in g["prongs"]:
             tip = self.prong_tip(p)
             root = hx0 if s == "a" else hx1
@@ -425,7 +438,7 @@ class ProngAdapter:
             if ch > 0:
                 tip_edges = shaft.edges().filter_by(Axis.Y).group_by(Axis.X)[-1 if s == "a" else 0]
                 shaft = chamfer(tip_edges, ch)
-            part += shaft
+            part = shaft if part is None else part + shaft
         sc = self.cfg["screw"]
         for y in g["screw_y"]:
             part -= x_cylinder(hx0 - 1, hx1 + 1, y, g["screw_z"], sc["clearance"])
@@ -444,7 +457,7 @@ class ProngAdapter:
             for lo, hi, la in a_spans:
                 if p["y"] - p["width"] / 2 < hi and p["y"] + p["width"] / 2 > lo and la + p["length"] > self.dw:
                     self.warnings.append(f"prong {p['label']} (side B) meets a side A prong inside the device")
-        if self.T - 1.0 < 4:
+        if not self.flush and self.T - 1.0 < 4:
             self.warnings.append("walls thinner than 5 mm leave little thread length for the retaining screws")
 
     def strength(self):
@@ -467,10 +480,14 @@ class ProngAdapter:
 
     def report_lines(self, parts):
         cfg = self.cfg
-        lines = [f"walls        {sorted(self.sides)}, height {self.wall_h:.1f}, base {self.D:.1f} thick"]
+        depth = self.wall_h - cfg["fit"]["top"]
+        lines = [f"walls        {sorted(self.sides)}, {self.T:.1f} thick, reach {depth:.1f} mm below the device top, base {self.D:.1f} thick"]
         for g in self.groups:
-            lines.append(f"prong part {g['name']:<3} side {g['side'].upper()}, {len(g['prongs'])} prong(s), "
-                         f"{len(g['screw_y'])} retaining screw(s) <= {cfg['head']['thickness'] + self.T - 1.0:.0f} mm")
+            if self.flush:
+                retention = "flush with the walls, held in by the device (no screws)"
+            else:
+                retention = f"{len(g['screw_y'])} retaining screw(s) <= {cfg['head']['thickness'] + self.T - 1.0:.0f} mm"
+            lines.append(f"prong part {g['name']:<3} side {g['side'].upper()}, {len(g['prongs'])} prong(s), {retention}")
         rows = self.strength()
         if rows:
             lines.append(f"strength     {cfg['device']['mass']} kg device, load factor {cfg['strength']['load_factor']}, allowable {cfg['strength']['allowable']} MPa")

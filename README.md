@@ -26,6 +26,7 @@ It's a two-part system: a desk rail that's identical for every device, and a dev
 ### Adapter types
 
 * **`prongs`**: base plus hanging walls with windows. Prong parts slide through the windows into the device's channels and are held by a screw through their head bar. Prongs are either `through` (wall A → wall B, supported at both ends, for heavy devices) or `a` / `b` (blind, with their own insertion length per side).
+  * With `head.style: none` the prongs are plain bars that end flush with the walls. There is no head bar and no screw, so the walls can be thin and shallow. Something on the device has to stop the prongs sliding out, e.g. side panels that go back on after the prongs are in. See `configs/itx_pc.yaml`.
 * **`plate`**: a flat plate with holes. Use it for devices that are screwed on, or that hang on keyhole slots (screw heads left proud on the device side).
 
 ### Print orientation
