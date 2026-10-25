@@ -1,0 +1,219 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 424" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" role="img" aria-labelledby="dg-title">
+  <title id="dg-title">DeskMount dimension codes: front section and side view of a prong adapter on a desk rail</title>
+  <style>
+    svg {
+      --dg-bg: #ffffff; --dg-text: #202020; --dg-muted: #6e6b62; --dg-dim: #8a6d00; --dg-on: #d9480f;
+      --dg-adapter: #c9cac7; --dg-face: #dddedb; --dg-stroke: #4a4a4a; --dg-prong: #3a3a3a; --dg-rail: #ffd300;
+      --dg-rail-stroke: #8a6d00; --dg-desk: #e6d3b3; --dg-desk-stroke: #b39468; --dg-device: #7a776e; --dg-window: #2b2b2b;
+    }
+    @media (prefers-color-scheme: dark) {
+      svg {
+        --dg-bg: #202020; --dg-text: #edece7; --dg-muted: #9b998f; --dg-dim: #ffd300; --dg-on: #ff9f43;
+        --dg-adapter: #6a6b69; --dg-face: #555654; --dg-stroke: #b9b8b2; --dg-prong: #f2f1ec; --dg-rail: #ffd300;
+        --dg-rail-stroke: #8a6d00; --dg-desk: #5e4d38; --dg-desk-stroke: #8a7253; --dg-device: #9b998f; --dg-window: #111111;
+      }
+    }
+    .bg { fill: var(--dg-bg); }
+    .title { fill: var(--dg-text); font-size: 14px; font-weight: 650; }
+    .note { fill: var(--dg-muted); font-size: 11.5px; }
+    .lbl { fill: var(--dg-muted); font-size: 12px; }
+    .desk { fill: var(--dg-desk); stroke: var(--dg-desk-stroke); stroke-width: 1; }
+    .rail { fill: var(--dg-rail); stroke: var(--dg-rail-stroke); stroke-width: 1; }
+    .adapter { fill: var(--dg-adapter); stroke: var(--dg-stroke); stroke-width: 1.2; }
+    .face { fill: var(--dg-face); stroke: var(--dg-stroke); stroke-width: 1.2; }
+    .prong { fill: var(--dg-prong); stroke: var(--dg-stroke); stroke-width: 1; }
+    .window { fill: var(--dg-window); }
+    .device { fill: none; stroke: var(--dg-device); stroke-width: 1.4; stroke-dasharray: 6 4; }
+    .centre { stroke: var(--dg-muted); stroke-width: 1; stroke-dasharray: 14 4 2 4; fill: none; }
+    .screw { stroke: var(--dg-stroke); stroke-width: 2; fill: var(--dg-stroke); }
+    .arrow { stroke: var(--dg-text); stroke-width: 1.6; fill: none; marker-end: url(#dg-arrow-text); }
+    .dim .dl, .dim .dl1 { stroke: var(--dg-dim); stroke-width: 1.2; fill: none; }
+    .dim .dl { marker-start: url(#dg-arrow); marker-end: url(#dg-arrow); }
+    .dim .dl1 { marker-end: url(#dg-arrow); }
+    .dim .ext { stroke: var(--dg-dim); stroke-width: 0.8; opacity: .75; }
+    .dim .dt { fill: var(--dg-dim); font-size: 13px; font-weight: 700; }
+    .dim.on .dl, .dim.on .dl1 { stroke: var(--dg-on); stroke-width: 2.2; }
+    .dim.on .dl { marker-start: url(#dg-arrow-on); marker-end: url(#dg-arrow-on); }
+    .dim.on .dl1 { marker-end: url(#dg-arrow-on); }
+    .dim.on .ext { stroke: var(--dg-on); opacity: 1; stroke-width: 1.2; }
+    .dim.on .dt { fill: var(--dg-on); font-size: 15px; }
+    .leg .code { fill: var(--dg-dim); font-size: 12.5px; font-weight: 700; }
+    .leg .desc { fill: var(--dg-text); font-size: 12px; }
+    .leg.on .code, .leg.on .desc { fill: var(--dg-on); }
+    .ah { fill: var(--dg-dim); }
+    .ah-on { fill: var(--dg-on); }
+    .ah-text { fill: var(--dg-text); }
+  </style>
+  <defs>
+    <marker id="dg-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path class="ah" d="M0,1 L10,5 L0,9 z"/></marker>
+    <marker id="dg-arrow-on" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path class="ah-on" d="M0,1 L10,5 L0,9 z"/></marker>
+    <marker id="dg-arrow-text" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" orient="auto" markerUnits="userSpaceOnUse"><path class="ah-text" d="M0,1 L10,5 L0,9 z"/></marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1000" height="424" rx="10"/>
+
+  <!-- ===================== FRONT SECTION ===================== -->
+  <text class="title" x="30" y="26">Front section</text>
+  <text class="note" x="128" y="26">looking along the slide direction</text>
+
+  <rect class="desk" x="30" y="50" width="480" height="20"/>
+  <text class="lbl" x="36" y="64">desk</text>
+  <line class="centre" x1="270" y1="38" x2="270" y2="330"/>
+
+  <rect class="rail" x="300" y="70" width="80" height="10"/>
+  <rect class="adapter" x="60" y="80" width="420" height="24"/>
+  <polygon class="rail" points="332,80 348,80 348,82 354,88 354,92 326,92 326,88 332,82"/>
+  <rect class="adapter" x="60" y="104" width="18" height="76"/>
+  <rect class="adapter" x="462" y="104" width="18" height="76"/>
+
+  <rect class="device" x="86" y="110" width="368" height="208"/>
+  <text class="lbl" x="178" y="272" text-anchor="middle">device</text>
+
+  <rect class="prong" x="46" y="132" width="150" height="16"/>
+  <rect class="prong" x="46" y="132" width="14" height="44"/>
+  <rect class="screw" x="36" y="163" width="5" height="9"/>
+  <line class="screw" x1="41" y1="167.5" x2="72" y2="167.5"/>
+  <rect class="prong" x="344" y="132" width="150" height="16"/>
+  <rect class="prong" x="480" y="132" width="14" height="44"/>
+  <rect class="screw" x="499" y="163" width="5" height="9"/>
+  <line class="screw" x1="468" y1="167.5" x2="499" y2="167.5"/>
+
+  <text class="lbl" x="69" y="226" text-anchor="middle">wall A</text>
+  <text class="lbl" x="471" y="226" text-anchor="middle">wall B</text>
+  <text class="note" x="284" y="238">blind prongs with head bar + screw;</text>
+  <text class="note" x="284" y="254">through-prongs run wall A → wall B,</text>
+  <text class="note" x="284" y="270">flush style has no head bar</text>
+
+  <g class="dim" data-dim="RP">
+    <line class="ext" x1="340" y1="70" x2="340" y2="36"/>
+    <line class="dl" x1="270" y1="42" x2="340" y2="42"/>
+    <text class="dt" x="305" y="37" text-anchor="middle">RP</text>
+  </g>
+  <g class="dim" data-dim="BT">
+    <line class="ext" x1="60" y1="80" x2="32" y2="80"/>
+    <line class="ext" x1="60" y1="104" x2="32" y2="104"/>
+    <line class="dl" x1="38" y1="80" x2="38" y2="104"/>
+    <text class="dt" x="30" y="97" text-anchor="end">BT</text>
+  </g>
+  <g class="dim" data-dim="FT">
+    <line class="dl1" x1="110" y1="90" x2="110" y2="104"/>
+    <line class="dl1" x1="110" y1="124" x2="110" y2="110"/>
+    <text class="dt" x="116" y="124">FT</text>
+  </g>
+  <g class="dim" data-dim="PO">
+    <line class="ext" x1="196" y1="132" x2="246" y2="132"/>
+    <line class="dl" x1="216" y1="110" x2="216" y2="132"/>
+    <text class="dt" x="222" y="126">PO</text>
+  </g>
+  <g class="dim" data-dim="PT">
+    <line class="ext" x1="196" y1="148" x2="266" y2="148"/>
+    <line class="dl" x1="256" y1="132" x2="256" y2="148"/>
+    <text class="dt" x="262" y="145">PT</text>
+  </g>
+  <g class="dim" data-dim="PL">
+    <line class="ext" x1="196" y1="148" x2="196" y2="196"/>
+    <line class="ext" x1="86" y1="180" x2="86" y2="196"/>
+    <line class="dl" x1="86" y1="190" x2="196" y2="190"/>
+    <text class="dt" x="141" y="185" text-anchor="middle">PL</text>
+  </g>
+  <g class="dim" data-dim="FS">
+    <line class="ext" x1="78" y1="180" x2="78" y2="214"/>
+    <line class="dl1" x1="64" y1="208" x2="78" y2="208"/>
+    <line class="dl1" x1="100" y1="208" x2="86" y2="208"/>
+    <line class="ext" x1="86" y1="196" x2="86" y2="214"/>
+    <text class="dt" x="104" y="212">FS</text>
+  </g>
+  <g class="dim" data-dim="WT">
+    <line class="ext" x1="462" y1="180" x2="462" y2="214"/>
+    <line class="ext" x1="480" y1="180" x2="480" y2="214"/>
+    <line class="dl1" x1="448" y1="208" x2="462" y2="208"/>
+    <line class="dl1" x1="494" y1="208" x2="480" y2="208"/>
+    <text class="dt" x="444" y="212" text-anchor="end">WT</text>
+  </g>
+  <g class="dim" data-dim="WH">
+    <line class="ext" x1="480" y1="104" x2="522" y2="104"/>
+    <line class="ext" x1="480" y1="180" x2="522" y2="180"/>
+    <line class="dl" x1="516" y1="104" x2="516" y2="180"/>
+    <text class="dt" x="522" y="147">WH</text>
+  </g>
+  <g class="dim" data-dim="DW">
+    <line class="dl" x1="86" y1="300" x2="454" y2="300"/>
+    <text class="dt" x="300" y="295" text-anchor="middle">DW</text>
+  </g>
+
+  <!-- ===================== SIDE VIEW ===================== -->
+  <text class="title" x="580" y="26">Side view</text>
+  <text class="note" x="652" y="26">wall A seen from outside, head bar not shown</text>
+
+  <rect class="desk" x="580" y="50" width="390" height="20"/>
+  <rect class="rail" x="690" y="70" width="200" height="10"/>
+  <rect class="adapter" x="610" y="80" width="340" height="24"/>
+  <rect class="face" x="610" y="104" width="340" height="76"/>
+  <line class="centre" x1="770" y1="38" x2="770" y2="262"/>
+
+  <rect class="window" x="661" y="131" width="38" height="18"/>
+  <rect class="prong" x="662" y="132" width="36" height="16"/>
+  <rect class="window" x="776" y="131" width="38" height="18"/>
+  <rect class="prong" x="777" y="132" width="36" height="16"/>
+  <rect class="window" x="826" y="131" width="38" height="18"/>
+  <rect class="prong" x="827" y="132" width="36" height="16"/>
+
+  <rect class="screw" x="592" y="88" width="5" height="9"/>
+  <line class="screw" x1="597" y1="92.5" x2="622" y2="92.5"/>
+  <text class="note" x="610" y="250">front: stop + lock screw</text>
+  <line class="arrow" x1="800" y1="244" x2="940" y2="244"/>
+  <text class="note" x="870" y="236" text-anchor="middle">slide in (+Y)</text>
+
+  <g class="dim" data-dim="RL">
+    <line class="ext" x1="690" y1="70" x2="690" y2="36"/>
+    <line class="ext" x1="890" y1="70" x2="890" y2="36"/>
+    <line class="dl" x1="690" y1="42" x2="890" y2="42"/>
+    <text class="dt" x="820" y="37" text-anchor="middle">RL</text>
+  </g>
+  <g class="dim" data-dim="PY">
+    <line class="ext" x1="820" y1="131" x2="820" y2="110"/>
+    <line class="dl" x1="770" y1="116" x2="820" y2="116"/>
+    <text class="dt" x="795" y="128" text-anchor="middle">PY</text>
+  </g>
+  <g class="dim" data-dim="PP">
+    <line class="ext" x1="795" y1="149" x2="795" y2="172"/>
+    <line class="ext" x1="845" y1="149" x2="845" y2="172"/>
+    <line class="dl" x1="795" y1="166" x2="845" y2="166"/>
+    <text class="dt" x="870" y="170">PP</text>
+  </g>
+  <g class="dim" data-dim="PW">
+    <line class="ext" x1="662" y1="149" x2="662" y2="172"/>
+    <line class="ext" x1="698" y1="149" x2="698" y2="172"/>
+    <line class="dl" x1="662" y1="166" x2="698" y2="166"/>
+    <text class="dt" x="680" y="161" text-anchor="middle">PW</text>
+  </g>
+  <g class="dim" data-dim="BL">
+    <line class="ext" x1="610" y1="180" x2="610" y2="214"/>
+    <line class="ext" x1="950" y1="180" x2="950" y2="214"/>
+    <line class="dl" x1="610" y1="208" x2="950" y2="208"/>
+    <text class="dt" x="800" y="203" text-anchor="middle">BL</text>
+  </g>
+
+  <!-- ===================== LEGEND ===================== -->
+  <line x1="30" y1="330" x2="970" y2="330" stroke="var(--dg-muted)" stroke-width="0.6" opacity=".5"/>
+  <g font-size="12">
+    <g class="leg" data-dim="DW"><text class="code" x="30" y="354">DW</text><text class="desc" x="60" y="354">device width, wall to wall</text></g>
+    <g class="leg" data-dim="FS"><text class="code" x="30" y="374">FS</text><text class="desc" x="60" y="374">side play, each side</text></g>
+    <g class="leg" data-dim="FT"><text class="code" x="30" y="394">FT</text><text class="desc" x="60" y="394">gap device top to base</text></g>
+    <g class="leg" data-dim="RP"><text class="code" x="30" y="414">RP</text><text class="desc" x="60" y="414">rail offset from centre</text></g>
+
+    <g class="leg" data-dim="BL"><text class="code" x="270" y="354">BL</text><text class="desc" x="300" y="354">base length, along the walls</text></g>
+    <g class="leg" data-dim="BT"><text class="code" x="270" y="374">BT</text><text class="desc" x="300" y="374">base thickness</text></g>
+    <g class="leg" data-dim="WT"><text class="code" x="270" y="394">WT</text><text class="desc" x="300" y="394">wall thickness</text></g>
+    <g class="leg" data-dim="WH"><text class="code" x="270" y="414">WH</text><text class="desc" x="300" y="414">wall height below the base</text></g>
+
+    <g class="leg" data-dim="PW"><text class="code" x="520" y="354">PW</text><text class="desc" x="550" y="354">prong width</text></g>
+    <g class="leg" data-dim="PT"><text class="code" x="520" y="374">PT</text><text class="desc" x="550" y="374">prong thickness</text></g>
+    <g class="leg" data-dim="PO"><text class="code" x="520" y="394">PO</text><text class="desc" x="550" y="394">device top to top of channel</text></g>
+    <g class="leg" data-dim="PL"><text class="code" x="520" y="414">PL</text><text class="desc" x="550" y="414">blind prong depth (not for through)</text></g>
+
+    <g class="leg" data-dim="PY"><text class="code" x="780" y="354">PY</text><text class="desc" x="810" y="354">prong row position</text></g>
+    <g class="leg" data-dim="PP"><text class="code" x="780" y="374">PP</text><text class="desc" x="810" y="374">spacing in a row (count &gt; 1)</text></g>
+    <g class="leg" data-dim="RL"><text class="code" x="780" y="394">RL</text><text class="desc" x="810" y="394">rail length</text></g>
+  </g>
+</svg>

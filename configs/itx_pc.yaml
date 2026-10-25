@@ -7,13 +7,13 @@
 # Two parallel desk rails carry the adapter.
 
 device:
-  width: 125       # frame width between the side gaps
+  width: 125       # DW: frame width between the side gaps
   mass: 4.7        # kg
 
 prong:
-  width: 40        # channel is ~140 mm long; keeps clear of the middle and edge bolts
-  thickness: 4.5   # channel 5-6 mm tall
-  offset: 2        # 2 mm aluminium top panel above the channel
+  width: 40        # PW: channel is ~140 mm long; keeps clear of the middle and edge bolts
+  thickness: 4.5   # PT: channel 5-6 mm tall
+  offset: 2        # PO: 2 mm aluminium top panel above the channel
 
 prongs:
   - {side: through, y: -35}
@@ -26,7 +26,7 @@ base:
   frame: 16        # open the middle of the base, keep 16 mm strips along walls, ends and rails
 
 walls:
-  thickness: 4     # side gap 5-6 mm, leaves 0.5-1.5 mm after the 0.5 mm side play
+  thickness: 4     # WT: side gap 5-6 mm, leaves 0.5-1.5 mm after the 0.5 mm side play
 
 rail:
   axis: y

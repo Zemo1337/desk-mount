@@ -10,7 +10,7 @@ const SECTIONS = [
       help: 'Prongs: walls hang beside the device and prongs slide through them into its channels. Plate: flat plate screwed to the device or hung on keyhole screws.' },
   ] },
   { title: 'Device', open: true, fields: [
-    { k: 'device.width', label: 'Width between walls', sketch: 'E', unit: 'mm', type: 'num', when: P,
+    { k: 'device.width', label: 'Width between walls', dim: 'DW', unit: 'mm', type: 'num', when: P,
       help: 'Outer size of the device across the prongs, wall to wall. Measure the device itself; the play comes from Fit.' },
     { k: 'device.mass', label: 'Mass', unit: 'kg', type: 'num', when: P, help: 'Device weight for the prong strength estimate.' },
     { k: 'device.height', label: 'Height (preview only)', unit: 'mm', type: 'num', help: 'Only draws the dashed device outline.' },
@@ -18,25 +18,25 @@ const SECTIONS = [
       help: 'Only draws the dashed device outline. Empty = base length + 40.' },
   ] },
   { title: 'Prongs', open: true, when: P, custom: 'prongs', fields: [
-    { k: 'prong.width', label: 'Default width', sketch: 'H', unit: 'mm', type: 'num', help: 'Prong width along the wall = slot width minus play.' },
-    { k: 'prong.thickness', label: 'Default thickness', sketch: 'F', unit: 'mm', type: 'num', help: 'Prong thickness = channel height minus play.' },
-    { k: 'prong.offset', label: 'Default offset', sketch: 'G', unit: 'mm', type: 'num', help: 'Device top surface down to the top edge of the channel.' },
-    { k: 'prong.length', label: 'Default length', sketch: 'E−n', unit: 'mm', type: 'num', help: 'How deep a blind (side A / B) prong goes into the device. Through-prongs ignore it.' },
+    { k: 'prong.width', label: 'Default width', dim: 'PW', unit: 'mm', type: 'num', help: 'Prong width along the wall = slot width minus play.' },
+    { k: 'prong.thickness', label: 'Default thickness', dim: 'PT', unit: 'mm', type: 'num', help: 'Prong thickness = channel height minus play.' },
+    { k: 'prong.offset', label: 'Default offset', dim: 'PO', unit: 'mm', type: 'num', help: 'Device top surface down to the top edge of the channel.' },
+    { k: 'prong.length', label: 'Default length', dim: 'PL', unit: 'mm', type: 'num', help: 'How deep a blind (side A / B) prong goes into the device. Through-prongs ignore it.' },
     { k: 'prong.tip_chamfer', label: 'Tip chamfer', unit: 'mm', type: 'num', help: 'Lead-in chamfer on the prong tips.' },
   ] },
   { title: 'Base & walls', when: P, fields: [
-    { k: 'base.length', label: 'Base length', sketch: 'A', unit: 'mm', type: 'num', auto: true, help: 'Length along the walls. auto = just covers the prong heads plus margin.' },
-    { k: 'base.thickness', label: 'Base thickness', sketch: 'D', unit: 'mm', type: 'num', auto: true, help: 'auto = just deep enough for the dovetail channel.' },
+    { k: 'base.length', label: 'Base length', dim: 'BL', unit: 'mm', type: 'num', auto: true, help: 'Length along the walls. auto = just covers the prong heads plus margin.' },
+    { k: 'base.thickness', label: 'Base thickness', dim: 'BT', unit: 'mm', type: 'num', auto: true, help: 'auto = just deep enough for the dovetail channel.' },
     { k: 'base.frame', label: 'Frame width', unit: 'mm', type: 'num', help: 'Opens the middle of the base and keeps strips this wide along walls, ends and rails. 0 = solid base.' },
     { k: 'base.overhang', label: 'Overhang outside walls', unit: 'mm', type: 'num', help: 'Extends the base beyond the walls.' },
     { k: 'base.margin', label: 'End margin', unit: 'mm', type: 'num', help: 'Base length beyond the prong heads when length is auto.' },
-    { k: 'walls.thickness', label: 'Wall thickness', unit: 'mm', type: 'num', help: 'Also the thread length for the prong screws (minus 1 mm).' },
-    { k: 'walls.height', label: 'Wall height', sketch: 'I', unit: 'mm', type: 'num', auto: true, help: 'auto = as low as the windows and screws allow.' },
+    { k: 'walls.thickness', label: 'Wall thickness', dim: 'WT', unit: 'mm', type: 'num', help: 'Also the thread length for the prong screws (minus 1 mm).' },
+    { k: 'walls.height', label: 'Wall height', dim: 'WH', unit: 'mm', type: 'num', auto: true, help: 'auto = as low as the windows and screws allow.' },
     { k: 'walls.sides', label: 'Walls', type: 'sides', help: 'auto = walls where prongs need them. A wall without prongs works as a side stop.' },
   ] },
   { title: 'Fit', when: P, fields: [
-    { k: 'fit.side', label: 'Side play (each side)', unit: 'mm', type: 'num', help: 'Gap between device and each wall.' },
-    { k: 'fit.top', label: 'Top gap', unit: 'mm', type: 'num', help: 'Gap between device top and adapter base.' },
+    { k: 'fit.side', label: 'Side play (each side)', dim: 'FS', unit: 'mm', type: 'num', help: 'Gap between device and each wall.' },
+    { k: 'fit.top', label: 'Top gap', dim: 'FT', unit: 'mm', type: 'num', help: 'Gap between device top and adapter base.' },
     { k: 'fit.window', label: 'Window clearance', unit: 'mm', type: 'num', help: 'Clearance around each prong in the wall windows.' },
   ] },
   { title: 'Plate', open: true, when: L, custom: 'plateHoles', fields: [
@@ -49,8 +49,8 @@ const SECTIONS = [
   { title: 'Desk rail', open: true, fields: [
     { k: 'rail.axis', label: 'Slide direction', type: 'select', options: [['y', 'Y (along the walls)'], ['x', 'X (across)']],
       help: 'The device is pushed in towards +axis; the stop and lock screw are at the front (-axis) end.' },
-    { k: 'rail.positions', label: 'Rail positions', unit: 'mm', type: 'numlist', help: 'Rail centre offsets across the slide direction, e.g. "-50, 50" for two rails.' },
-    { k: 'rail.length', label: 'Rail length', unit: 'mm', type: 'num', auto: true, help: 'auto = the full adapter channel.' },
+    { k: 'rail.positions', label: 'Rail positions', dim: 'RP', unit: 'mm', type: 'numlist', help: 'Rail centre offsets across the slide direction, e.g. "-50, 50" for two rails.' },
+    { k: 'rail.length', label: 'Rail length', dim: 'RL', unit: 'mm', type: 'num', auto: true, help: 'auto = the full adapter channel.' },
     { k: 'rail.thickness', label: 'Rail plate thickness', unit: 'mm', type: 'num', help: 'Plate screwed to the desk.' },
     { k: 'rail.detent', label: 'Detent ridge height', unit: 'mm', type: 'num', help: 'Click strength. 0 = no detent. Tune with the fit test.' },
     { k: 'rail.detent_distance', label: 'Detent before stop', unit: 'mm', type: 'num', help: 'How far before the end of travel it clicks.' },
@@ -122,15 +122,31 @@ function colorFor(label, prongLabels) {
 
 const PRONG_COLS = [
   { k: 'side', label: 'Side', type: 'side' },
-  { k: 'y', label: 'Y', def: 0 },
+  { k: 'y', label: 'Y', def: 0, dim: 'PY' },
   { k: 'count', label: 'Count', def: 1, int: true },
-  { k: 'pitch', label: 'Pitch', def: '' },
-  { k: 'length', label: 'Length', from: 'length' },
-  { k: 'width', label: 'Width', from: 'width' },
-  { k: 'thickness', label: 'Thickness', from: 'thickness' },
-  { k: 'offset', label: 'Offset', from: 'offset' },
+  { k: 'pitch', label: 'Pitch', def: '', dim: 'PP' },
+  { k: 'length', label: 'Length', from: 'length', dim: 'PL' },
+  { k: 'width', label: 'Width', from: 'width', dim: 'PW' },
+  { k: 'thickness', label: 'Thick', from: 'thickness', dim: 'PT' },
+  { k: 'offset', label: 'Offset', from: 'offset', dim: 'PO' },
   { k: 'group', label: 'Part', text: true },
 ];
+
+const DIM_NAMES = {
+  DW: 'device width, wall to wall', FS: 'side play, each side', FT: 'gap device top to base', RP: 'rail offset from centre',
+  BL: 'base length, along the walls', BT: 'base thickness', WT: 'wall thickness', WH: 'wall height below the base',
+  PW: 'prong width', PT: 'prong thickness', PO: 'device top to top of channel', PL: 'blind prong depth',
+  PY: 'prong row position', PP: 'spacing in a row', RL: 'rail length',
+};
+
+function dimBadge(code) {
+  const b = document.createElement('span');
+  b.className = 'dimcode';
+  b.textContent = code;
+  b.title = `${code}: ${DIM_NAMES[code] || ''} (click to show in the dimension guide)`;
+  b.addEventListener('click', (ev) => { ev.preventDefault(); guide.show(code); });
+  return b;
+}
 
 const state = {
   defaults: null,
@@ -234,7 +250,10 @@ function fieldRow(f) {
   label.htmlFor = id;
   label.innerHTML = `<span class="txt"></span>`;
   label.querySelector('.txt').textContent = f.label;
-  if (f.sketch) label.insertAdjacentHTML('beforeend', `<span class="sketch" title="Letter in the original sketch">${f.sketch}</span>`);
+  if (f.dim) {
+    row.dataset.dim = f.dim;
+    label.appendChild(dimBadge(f.dim));
+  }
   const ctl = document.createElement('div');
   ctl.className = 'ctl';
   let input;
@@ -386,6 +405,10 @@ function renderProngRows() {
       const cell = document.createElement('label');
       cell.className = 'mini';
       cell.innerHTML = `<span>${c.label}</span>`;
+      if (c.dim) {
+        cell.dataset.dim = c.dim;
+        cell.firstChild.appendChild(dimBadge(c.dim));
+      }
       cell.appendChild(input);
       grid.appendChild(cell);
     }
@@ -983,6 +1006,59 @@ const viewer = (() => {
   };
 })();
 
+/* ---------- dimension guide ---------- */
+
+const guide = (() => {
+  const panel = $('#guide');
+  const host = $('#guideSvg');
+  let loading = null;
+  let current = null;
+
+  function highlight(code) {
+    host.querySelectorAll('[data-dim]').forEach((el) => el.classList.toggle('on', !!code && el.dataset.dim === code));
+  }
+
+  function load() {
+    if (!loading) {
+      loading = fetch('dimensions.svg').then((r) => r.text()).then((text) => {
+        host.innerHTML = text;
+        host.querySelectorAll('.leg').forEach((g) => {
+          g.addEventListener('mouseenter', () => highlight(g.dataset.dim));
+          g.addEventListener('mouseleave', () => highlight(current));
+          g.addEventListener('click', () => { current = g.dataset.dim; highlight(current); });
+        });
+        highlight(current);
+      }).catch(() => { host.textContent = 'Could not load dimensions.svg'; });
+    }
+    return loading;
+  }
+
+  function setOpen(open) {
+    panel.hidden = !open;
+    $('#guideBtn').classList.toggle('on', open);
+    store.set('guide', open);
+    if (open) load();
+  }
+
+  return {
+    init() {
+      $('#guideBtn').addEventListener('click', () => setOpen(panel.hidden));
+      $('#guideClose').addEventListener('click', () => setOpen(false));
+      $('#form').addEventListener('focusin', (ev) => {
+        const el = ev.target.closest('[data-dim]');
+        current = el ? el.dataset.dim : null;
+        highlight(current);
+      });
+      setOpen(store.get('guide', true));
+    },
+    show(code) {
+      current = code;
+      setOpen(true);
+      load().then(() => highlight(code));
+    },
+  };
+})();
+
 /* ---------- wiring ---------- */
 
 function wire() {
@@ -1036,6 +1112,7 @@ function wire() {
 
 async function init() {
   wire();
+  guide.init();
   state.view = store.get('view', 'assembly');
   try {
     const data = await api('/api/init');

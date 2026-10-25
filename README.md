@@ -37,19 +37,33 @@ Every part prints without supports:
 * **Adapter:** printed desk-face down. The channel only needs a short bridge for its ceiling. The detent slot goes through the floor, so nothing is bridged there.
 * **Prong parts:** printed flat, so the layer lines run along the prongs.
 
-## Parameters vs. the original sketch
+## Dimensions
 
-| Sketch | Config key | Meaning |
+![Dimension codes](ui/dimensions.svg)
+
+Each dimension has a two-letter code. The first letter is the part (**D**evice, **F**it, **B**ase, **W**all, **P**rong, **R**ail) and the second is the initial of the dimension, so `prong.offset` is **PO** and `walls.height` is **WH**. The UI shows these codes next to the fields. Clicking a field or code highlights it in the dimension guide.
+
+What to measure on the device: **DW**, plus for each channel or slot its size (→ **PW**, **PT**, minus some play), its depth below the top surface (**PO**), its position along the device (**PY**), and how far it goes in (**PL**, or `through`).
+
+| Code | Config key | Meaning |
 |---|---|---|
-| A | `base.length` | adapter length along the walls (`auto` = just enough to cover the prongs) |
-| C | (derived) | `device.width` + 2 × `fit.side` + 2 × `walls.thickness` |
-| D | `base.thickness` | `auto` = deep enough for the dovetail channel |
-| E | `device.width` | device size between the walls (plus `fit.side` play on each side) |
-| F | `prong.thickness` | prong thickness = channel height minus play |
-| G | `prong.offset` | device top surface down to the top edge of the channel |
-| H | `prong.width` | prong width along the wall |
-| I | `walls.height` | `auto` = as low as the windows and the screw allow |
-| E−n | `prong.length` | how deep a blind prong goes into the device |
+| DW | `device.width` | device size between the walls, measured on the device |
+| FS | `fit.side` | play between the device and each wall |
+| FT | `fit.top` | gap between the device top and the adapter base |
+| BL | `base.length` | adapter length along the walls (`auto` = just enough to cover the prongs) |
+| BT | `base.thickness` | `auto` = deep enough for the dovetail channel |
+| WT | `walls.thickness` | wall thickness (also limits screw thread length) |
+| WH | `walls.height` | wall height below the base (`auto` = as low as the windows allow) |
+| PW | `prong.width` | prong width along the wall = slot width minus play |
+| PT | `prong.thickness` | prong thickness = channel height minus play |
+| PO | `prong.offset` | device top surface down to the top edge of the channel |
+| PL | `prong.length` | how deep a blind prong goes into the device (through-prongs ignore it) |
+| PY | `prongs[].y` | position of a prong row along the walls, from the centre |
+| PP | `prongs[].pitch` | spacing between prongs in a row (`count` > 1) |
+| RP | `rail.positions` | rail centre offset across the slide direction |
+| RL | `rail.length` | rail length (`auto` = the full adapter channel) |
+
+The overall adapter width follows from these: DW + 2 × FS + 2 × WT.
 
 ### Rail and dovetail
 
@@ -76,7 +90,7 @@ python -m venv .venv
 
 Double-click `DeskMount UI.bat`, or run `.venv\Scripts\python.exe ui_server.py`. The batch file creates the venv on first start. The UI opens at http://localhost:8765 and is served on 127.0.0.1 only.
 
-* **Left: parameters.** Values you set are highlighted and saved to the YAML. Empty fields use the default shown in grey, and ↺ resets a field. The letters (A, D, E…) refer to the original sketch. Focus a field to see its help text.
+* **Left: parameters.** Values you set are highlighted and saved to the YAML. Empty fields use the default shown in grey, and ↺ resets a field. Focus a field to see its help text. The yellow codes (DW, PO…) link to the **Dimensions** guide in the 3D view, which highlights the dimension you're editing.
 * **Middle: 3D view.** Switch between the assembly (desk on top, device dashed, arrow = slide direction) and the print layout. There is an explode slider and a section cut along X or Y. Click the legend chips to hide parts, and hover a part for its size.
 * **Right: report.** Material, parts to print, warnings, the prong strength check, and mounting details. After **Export files** it also has download links, a ZIP and an "Open folder" button.
 * **Live rebuild:** after each change, typically under a second. Turn off **Live** to rebuild only with **Build**.

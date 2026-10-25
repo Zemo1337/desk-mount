@@ -151,10 +151,37 @@ input:focus, select:focus { outline: 2px solid var(--accent-soft); border-color:
 }
 .field.overridden .reset { visibility: visible; }
 .reset:hover { color: var(--accent-text); }
-.sketch {
-  display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 4px;
+.dimcode {
+  display: inline-grid; place-items: center; min-width: 22px; height: 17px; padding: 0 4px;
   border-radius: 4px; background: var(--accent); color: var(--accent-ink); font-size: 10px; font-weight: 700;
+  letter-spacing: .03em; cursor: help; flex: none;
 }
+.dimcode:hover { filter: brightness(1.1); }
+.mini span .dimcode { margin-left: 4px; height: 15px; min-width: 20px; font-size: 9px; vertical-align: 1px; }
+
+/* dimension guide (inline SVG, themed through its --dg-* variables) */
+.guide {
+  width: min(620px, 100%); min-height: 0; flex: 0 1 auto; pointer-events: auto;
+  overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 6px 8px 8px;
+}
+.guide[hidden] { display: none; }
+.guide-head { display: flex; align-items: baseline; gap: 8px; padding: 2px 2px 6px; }
+.guide-head .muted { font-size: 11px; }
+.guide-head .close { margin-left: auto; border: 0; background: none; padding: 0 4px; color: var(--muted); }
+.guide-head .close:hover { color: var(--accent-text); }
+#guideSvg svg { width: 100%; height: auto; display: block; }
+#guideSvg .leg { cursor: pointer; }
+:root .guide svg {
+  --dg-bg: var(--panel); --dg-text: var(--text); --dg-muted: var(--muted); --dg-dim: #ffd300; --dg-on: #ff9f43;
+  --dg-adapter: #6a6b69; --dg-face: #555654; --dg-stroke: #b9b8b2; --dg-prong: #f2f1ec; --dg-rail: #ffd300;
+  --dg-rail-stroke: #8a6d00; --dg-desk: #5e4d38; --dg-desk-stroke: #8a7253; --dg-device: #9b998f; --dg-window: #111111;
+}
+:root[data-theme="light"] .guide svg {
+  --dg-dim: #8a6d00; --dg-on: #d9480f; --dg-adapter: #c9cac7; --dg-face: #dddedb; --dg-stroke: #4a4a4a;
+  --dg-prong: #3a3a3a; --dg-desk: #e6d3b3; --dg-desk-stroke: #b39468; --dg-device: #7a776e; --dg-window: #2b2b2b;
+}
+#guideBtn.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .check { display: flex; justify-content: flex-end; }
 .check input { width: auto; }
 
@@ -179,7 +206,7 @@ input:focus, select:focus { outline: 2px solid var(--accent-soft); border-color:
 .card .icon:hover { color: var(--accent-text); }
 .card-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
 .mini { display: grid; gap: 2px; min-width: 0; }
-.mini span { font-size: 11px; color: var(--muted); }
+.mini span { font-size: 11px; color: var(--muted); white-space: nowrap; }
 .mini input { width: 100%; padding: 3px 5px; text-align: right; font-variant-numeric: tabular-nums; }
 .mini input.invalid { border-color: var(--bad); background: var(--bad-soft); }
 .mini input:disabled { opacity: .55; }
@@ -194,8 +221,12 @@ input:focus, select:focus { outline: 2px solid var(--accent-soft); border-color:
   overflow: hidden;
 }
 #canvasHost, #canvasHost canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.top-stack {
+  position: absolute; top: 10px; left: 10px; right: 10px; bottom: 64px;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; z-index: 4;
+}
 .toolbar {
-  position: absolute; top: 10px; left: 10px; right: 10px;
+  align-self: stretch;
   display: flex; flex-wrap: wrap; gap: 8px; align-items: center; pointer-events: none;
 }
 .toolbar > * { pointer-events: auto; }
@@ -222,7 +253,7 @@ input:focus, select:focus { outline: 2px solid var(--accent-soft); border-color:
 .chip.off .sw { background: transparent !important; outline: 1px dashed var(--muted); }
 .hint { position: absolute; right: 12px; bottom: 8px; color: var(--muted); font-size: 11px; pointer-events: none; }
 .busy {
-  position: absolute; right: 12px; top: 54px; display: flex; align-items: center; gap: 8px;
+  position: absolute; right: 12px; bottom: 30px; display: flex; align-items: center; gap: 8px; z-index: 6;
   background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 5px 10px; box-shadow: var(--shadow);
 }
 .busy[hidden] { display: none; }
@@ -231,7 +262,7 @@ input:focus, select:focus { outline: 2px solid var(--accent-soft); border-color:
 .banner {
   position: absolute; left: 50%; top: 54px; transform: translateX(-50%); max-width: min(560px, calc(100% - 24px));
   background: var(--bad-soft); color: var(--bad); border: 1px solid var(--bad); border-radius: 7px; padding: 7px 12px;
-  box-shadow: var(--shadow); font-weight: 500;
+  box-shadow: var(--shadow); font-weight: 500; z-index: 6;
 }
 .banner[hidden] { display: none; }
 .hover {

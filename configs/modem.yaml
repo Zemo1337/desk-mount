@@ -6,14 +6,14 @@
 # The adapter slides onto one desk rail along Y.
 
 device:
-  width: 60        # front-to-back size of the modem (distance between the walls)
+  width: 60        # DW: front-to-back size of the modem (distance between the walls)
   mass: 0.8        # kg
 
 prong:             # defaults for every prong below
-  width: 10.4      # slot 11 mm minus 0.3 mm play per side
-  thickness: 1.6   # slot 2 mm minus 0.2 mm play per side
-  offset: 5        # top surface of the modem down to the top edge of the slot
-  length: 24       # middle slot is ~25 mm deep from each side, keep 1 mm spare
+  width: 10.4      # PW: slot 11 mm minus 0.3 mm play per side
+  thickness: 1.6   # PT: slot 2 mm minus 0.2 mm play per side
+  offset: 5        # PO: top surface of the modem down to the top edge of the slot
+  length: 24       # PL: middle slot is ~25 mm deep from each side, keep 1 mm spare
 
 prongs:
   - {side: through, y: -12}   # left slot, front to back
