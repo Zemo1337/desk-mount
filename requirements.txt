@@ -1,4 +1,6 @@
-build123d==0.13.0
-PyYAML==6.0.3
-matplotlib==3.11.2
-ruamel.yaml==0.19.1
+# Python 3.10 gets build123d 0.12 / matplotlib 3.10, Python 3.11+ gets 0.13 / 3.11.
+# Both combinations were checked to produce identical parts.
+build123d>=0.12,<0.14
+PyYAML>=6.0
+matplotlib>=3.8
+ruamel.yaml>=0.18

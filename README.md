@@ -81,7 +81,7 @@ Any `prong` default can be overridden per prong. `count` + `pitch` expand an ent
 
 ## Setup
 
-Requires Python 3.10–3.13 on Windows, Linux (x86-64) or macOS. The start scripts below create the venv on first start, so this step is only needed for the command line.
+Requires Python 3.10–3.14 on Windows, Linux (x86-64 or 64-bit ARM) or macOS. On Python 3.10, pip installs build123d 0.12 and matplotlib 3.10. Newer Pythons get build123d 0.13. Both produce identical parts. The start scripts below create the venv on first start, so this step is only needed for the command line.
 
 Windows:
 
@@ -97,7 +97,7 @@ python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 ```
 
-On Debian/Ubuntu, `python3 -m venv` needs the `python3-venv` package. build123d's CAD kernel (cadquery-ocp) ships prebuilt wheels for x86-64. On ARM boards such as a Raspberry Pi, check that a wheel exists for your Python version before relying on it.
+On Debian/Ubuntu, `python3 -m venv` needs the `python3-venv` package. build123d's CAD kernel (cadquery-ocp) ships prebuilt wheels for x86-64 and 64-bit ARM Linux with glibc 2.28 or newer (e.g. Ubuntu 20.04+, Raspberry Pi OS 64-bit). There are none for 32-bit ARM.
 
 ## UI
 
