@@ -81,14 +81,41 @@ Any `prong` default can be overridden per prong. `count` + `pitch` expand an ent
 
 ## Setup
 
+Requires Python 3.10–3.13 on Windows, Linux (x86-64) or macOS. The start scripts below create the venv on first start, so this step is only needed for the command line.
+
+Windows:
+
 ```
 python -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
+Linux / macOS:
+
+```
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+```
+
+On Debian/Ubuntu, `python3 -m venv` needs the `python3-venv` package. build123d's CAD kernel (cadquery-ocp) ships prebuilt wheels for x86-64. On ARM boards such as a Raspberry Pi, check that a wheel exists for your Python version before relying on it.
+
 ## UI
 
-Double-click `DeskMount UI.bat`, or run `.venv\Scripts\python.exe ui_server.py`. The batch file creates the venv on first start. The UI opens at http://localhost:8765 and is served on 127.0.0.1 only.
+* **Windows:** double-click `DeskMount UI.bat`.
+* **Linux / macOS:** run `./start-ui.sh`.
+* **Either system:** run `ui_server.py` with the venv's Python.
+
+The UI opens at http://localhost:8765.
+
+Options (they also work through the start scripts):
+
+| Option | Meaning |
+|---|---|
+| `--port 8765` | port to listen on |
+| `--host 127.0.0.1` | address to listen on. The default only accepts this machine. `--host 0.0.0.0` makes the UI reachable from other machines, e.g. when it runs on a home server. |
+| `--no-browser` | don't open a browser on start, e.g. on a headless server |
+
+The UI has no login. Anyone who can reach it can change and save configs, so only use `--host 0.0.0.0` on a network you trust. With a remote server, **Open folder** opens the folder on the server's screen. Use **Download ZIP** to get the files instead.
 
 * **Left: parameters.** Values you set are highlighted and saved to the YAML. Empty fields use the default shown in grey, and ↺ resets a field. Focus a field to see its help text. The yellow codes (DW, PO…) link to the **Dimensions** guide in the 3D view, which highlights the dimension you're editing.
 * **Middle: 3D view.** Switch between the assembly (desk on top, device dashed, arrow = slide direction) and the print layout. There is an explode slider and a section cut along X or Y. Click the legend chips to hide parts, and hover a part for its size.
@@ -101,8 +128,9 @@ The 3D view loads three.js from cdn.jsdelivr.net, so the browser needs internet 
 ## Command line
 
 ```
-.venv\Scripts\python.exe deskmount.py configs\modem.yaml
-.venv\Scripts\python.exe deskmount.py            # all configs
+.venv\Scripts\python.exe deskmount.py configs\modem.yaml     # Windows
+.venv/bin/python deskmount.py configs/modem.yaml             # Linux / macOS
+.venv/bin/python deskmount.py                                # all configs
 ```
 
 The output goes to `out/<name>/`, and the folder is recreated on each run. It contains:

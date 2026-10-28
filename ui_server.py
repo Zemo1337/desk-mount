@@ -1,16 +1,21 @@
 """Local web UI for the DeskMount generator.
 
 Usage:
-    python ui_server.py [--port 8765] [--no-browser]
+    python ui_server.py [--host 127.0.0.1] [--port 8765] [--no-browser]
 
-Serves ui/ and a small JSON API on 127.0.0.1 only.
+Serves ui/ and a small JSON API, by default on 127.0.0.1 only. The API has no
+authentication, so only use --host 0.0.0.0 on a network you trust.
 """
 
 import argparse
 import io
+import ipaddress
 import json
 import os
 import re
+import socket
+import subprocess
+import sys
 import threading
 import time
 import traceback
@@ -37,6 +42,18 @@ class ApiError(Exception):
     def __init__(self, message, status=400):
         super().__init__(message)
         self.status = status
+
+
+def open_folder(path):
+    """Open a folder in the file manager of the machine the server runs on."""
+    if sys.platform.startswith("win"):
+        os.startfile(path)
+        return
+    opener = "open" if sys.platform == "darwin" else "xdg-open"
+    try:
+        subprocess.Popen([opener, str(path)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except FileNotFoundError:
+        raise ApiError(f"cannot open folders here ({opener} not found); the files are in {path}", 501)
 
 
 def check_name(name):
@@ -239,7 +256,7 @@ class Handler(SimpleHTTPRequestHandler):
                 folder = OUT / name
                 if not folder.exists():
                     raise ApiError("nothing exported yet", 404)
-                os.startfile(folder)
+                open_folder(folder)
                 return self.send_json({"opened": str(folder)})
             if method == "GET" and route.startswith("/api/zip/"):
                 name = check_name(unquote(route[len("/api/zip/"):]))
@@ -302,14 +319,35 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_error(404)
 
 
+def is_loopback(host):
+    if host == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return False
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--host", default="127.0.0.1",
+                    help="address to listen on (default 127.0.0.1 = this machine only; 0.0.0.0 = all IPv4 interfaces)")
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--no-browser", action="store_true")
     args = ap.parse_args()
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
-    url = f"http://localhost:{args.port}/"
-    print(f"DeskMount UI on {url} (Ctrl+C to stop)")
+    server_class = ThreadingHTTPServer
+    if ":" in args.host:
+        server_class = type("ThreadingHTTPServerV6", (ThreadingHTTPServer,), {"address_family": socket.AF_INET6})
+    server = server_class((args.host, args.port), Handler)
+    wildcard = args.host in ("0.0.0.0", "::")
+    shown = "localhost" if wildcard else (f"[{args.host}]" if ":" in args.host else args.host)
+    url = f"http://{shown}:{args.port}/"
+    print(f"DeskMount UI on {url} (Ctrl+C to stop)", flush=True)
+    if not is_loopback(args.host):
+        print("WARNING: the UI is reachable from the network and has no login; anyone who can reach it can "
+              "change and save configs. Only do this on a network you trust.", flush=True)
+        if wildcard:
+            print(f"         Open it from other machines via http://<this machine's IP>:{args.port}/", flush=True)
     if not args.no_browser:
         threading.Timer(0.5, lambda: webbrowser.open(url)).start()
     try:
