@@ -44,7 +44,9 @@ DEFAULTS = {
     "plate": {"length": 80.0, "width": 40.0, "holes": [], "hole": 2.5, "head": 0.0},
     "rail": {
         "axis": "y", "positions": [0.0], "length": "auto", "thickness": 5.0,
-        "lock_screw": True, "detent": 1.0, "detent_distance": 8.0,
+        "lock_screw": True, "detent": 0.6, "detent_distance": 8.0,
+        "link": "bridge", "bridge_width": 12.0, "spacer_length": 15.0,
+        "access_holes": False, "access_clearance": 1.0,
         "holes": {"diameter": 4.5, "head": 9.0, "count": "auto", "margin": 2.0},
     },
     "dovetail": {"neck": 14.0, "neck_height": 1.0, "flare": 3.0, "land": 1.0, "clearance": 0.3,
@@ -134,8 +136,20 @@ class Dovetail:
         self.hole_head = max(float(hc["head"]), self.hole_d)
         self.hole_margin = float(hc["margin"])
         self.hole_count = hc["count"]
-        self.hole_x = self.wt / 2 + 0.5 + self.hole_head / 2
+        self.link = str(r["link"]).lower()
+        if self.link not in ("bridge", "spacers", "none"):
+            raise ConfigError(f"rail.link must be bridge, spacers or none, got {r['link']!r}")
+        self.bridge_width = float(r["bridge_width"])
+        self.spacer_length = float(r["spacer_length"])
+        self.access = bool(r["access_holes"])
+        self.access_d = self.hole_head + 2 * float(r["access_clearance"])
+        if self.access:
+            self.hole_x = self.strip / 2 + 1.0 + self.access_d / 2
+        else:
+            self.hole_x = self.wt / 2 + 0.5 + self.hole_head / 2
         self.width = 2 * (self.hole_x + self.hole_head / 2 + self.hole_margin)
+        self.joined = self.link == "bridge" and len(self.positions) > 1
+        self.rail_count = 1 if self.joined else len(self.positions)
         if (self.hole_head - self.hole_d) / 2 >= self.Rt:
             raise ConfigError("rail countersink deeper than rail.thickness")
         self.length = None
@@ -169,24 +183,83 @@ class Dovetail:
             n = max(2, math.ceil(L / 80) + 1)
         return spread(ym, L - ym, int(n))
 
-    def rail(self):
+    def rail_body(self, t):
+        """One rail without desk screw holes, centred on t (rail print coordinates)."""
         L, W, Rt = self.length, self.width, self.Rt
-        part = block(-W / 2, W / 2, 0, L, 0, Rt)
-        part += prism_y(self.profile(bottom=-0.01), 0, 0, L, Rt)
+        part = block(t - W / 2, t + W / 2, 0, L, 0, Rt)
+        part += prism_y(self.profile(bottom=-0.01), t, 0, L, Rt)
         if self.detent > 0:
             s, b = L - self.detent_dist, self.detent_base
             ridge = [(s - b / 2, self.h - 0.01), (s + b / 2, self.h - 0.01), (s, self.h + self.detent)]
-            part += prism_x(ridge, -self.wt / 2, self.wt / 2, Rt)
+            part += prism_x(ridge, t - self.wt / 2, t + self.wt / 2, Rt)
         if self.lock:
-            part -= y_cylinder(-1, 10, 0, Rt + self.v_screw, self.sc["pilot"])
+            part -= y_cylinder(-1, 10, t, Rt + self.v_screw, self.sc["pilot"])
+        return part
+
+    def desk_holes(self, part, ts):
         r, rh = self.hole_d / 2, self.hole_head / 2
         sink = rh - r
-        for x in (-self.hole_x, self.hole_x):
-            for y in self.holes_y(L):
-                part -= Pos(x, y, -1) * Cylinder(r, Rt + 2, align=CMIN)
-                if sink > 0:
-                    part -= Pos(x, y, Rt - sink) * Cone(r, rh, sink + 0.01, align=CMIN)
+        for t in ts:
+            for x in (t - self.hole_x, t + self.hole_x):
+                for y in self.holes_y(self.length):
+                    part -= Pos(x, y, -1) * Cylinder(r, self.Rt + 2, align=CMIN)
+                    if sink > 0:
+                        part -= Pos(x, y, self.Rt - sink) * Cone(r, rh, sink + 0.01, align=CMIN)
         return part
+
+    def rail(self):
+        """The printed rail part: one rail, or all rails joined by bars at both ends."""
+        if not self.joined:
+            return self.desk_holes(self.rail_body(0.0), [0.0])
+        ts = sorted(self.t_of(p) for p in self.positions)
+        part = None
+        for t in ts:
+            part = self.rail_body(t) if part is None else part + self.rail_body(t)
+        bw, L = self.bridge_width, self.length
+        for s0, s1 in ((0.0, bw), (L - bw, L)):
+            part += block(ts[0], ts[-1], s0, s1, 0, self.Rt)
+        return self.desk_holes(part, ts)
+
+    def spacer(self):
+        """Removable jig that slides onto all tongues at once to hold the rail spacing while screwing."""
+        if self.link != "spacers" or len(self.positions) < 2:
+            return None
+        ts = [self.t_of(p) for p in self.positions]
+        ls = self.spacer_length
+        depth = self.h + self.c + self.detent + 2.5
+        part = block(min(ts) - self.strip / 2, max(ts) + self.strip / 2, 0, ls, 0, depth)
+        for t in ts:
+            part -= prism_y(self.profile(grow=self.c, top_extra=self.c + self.detent + 0.2, bottom=-1), t, -1, ls + 1)
+        return part
+
+    def access_points(self, s0):
+        """Centres of the screw access holes in adapter coordinates."""
+        pts = []
+        for p in self.positions:
+            t = self.t_of(p)
+            for x in (t - self.hole_x, t + self.hole_x):
+                for y in self.holes_y(self.length):
+                    s = s0 + self.stop + y
+                    pts.append((x, s) if self.axis == "y" else (s, -x))
+        return pts
+
+    def access_cuts(self, s0, D):
+        cut = None
+        for x, y in self.access_points(s0):
+            c = Pos(x, y, -1) * Cylinder(self.access_d / 2, D + 1.02, align=CMIN)
+            cut = c if cut is None else cut + c
+        return cut
+
+    def check_access(self, s0, warnings, inside):
+        """inside(x, y, r) tells whether a hole of radius r at (x, y) has base above it and no wall."""
+        r = self.access_d / 2
+        for x, y in self.access_points(s0):
+            across = x if self.axis == "y" else -y
+            for p in self.positions:
+                if abs(across - self.t_of(p)) < self.strip / 2 + r - 1e-6:
+                    raise ConfigError(f"a screw access hole at ({x:.1f}, {y:.1f}) would cut into the rail channel at {p}; move the rails apart")
+            if not inside(x, y, r):
+                warnings.append(f"screw access hole at ({x:.1f}, {y:.1f}) is not fully inside the base or runs into a wall")
 
     def channel_cuts(self, s0, s1, D):
         cut = None
@@ -222,6 +295,8 @@ class Dovetail:
         return rects
 
     def placed_rails(self, rail, s0):
+        if self.joined:
+            return [self.to_adapter(Pos(0, s0 + self.stop, -self.Rt) * rail)]
         return [self.to_adapter(Pos(self.t_of(p), s0 + self.stop, -self.Rt) * rail) for p in self.positions]
 
     def check_across(self, lo, hi, warnings, inner=None):
@@ -234,6 +309,8 @@ class Dovetail:
         for a, b in zip(ps, ps[1:]):
             if b - a < self.strip:
                 raise ConfigError(f"rails at {a} and {b} are closer than the channel strip width {self.strip:.1f}")
+            if not self.joined and b - a < self.width:
+                raise ConfigError(f"rails at {a} and {b} overlap ({self.width:.1f} mm wide each); move them apart or use rail.link: bridge")
 
 
 def expand_prongs(cfg):
@@ -376,6 +453,11 @@ class ProngAdapter:
         else:
             self.dove.check_across(self.y0, self.y1, self.warnings)
         self.dove.fit_length(*self.s_range())
+        if self.dove.access:
+            lo = self.x_in["a"] if "a" in self.sides else self.bx0
+            hi = self.x_in["b"] if "b" in self.sides else self.bx1
+            self.dove.check_access(self.s_range()[0], self.warnings,
+                                   lambda x, y, r: lo <= x - r and x + r <= hi and self.y0 <= y - r and y + r <= self.y1)
 
     def s_range(self):
         return (self.y0, self.y1) if self.dove.axis == "y" else (self.bx0, self.bx1)
@@ -416,6 +498,8 @@ class ProngAdapter:
             for y in g["screw_y"]:
                 part -= x_cylinder(self.x_out[s] - (0.5 if s == "a" else -0.5), x_end, y, g["screw_z"], sc["pilot"])
         part -= self.dove.channel_cuts(s0, s1, self.D)
+        if self.dove.access:
+            part -= self.dove.access_cuts(s0, self.D)
         return part
 
     def comb(self, g):
@@ -527,6 +611,14 @@ class PlateAdapter:
             for x0, x1, y0, y1 in self.dove.strip_rects(*self.s_range()):
                 if x0 - r < x < x1 + r and y0 - r < y < y1 + r:
                     raise ConfigError(f"plate hole ({x}, {y}) collides with the rail channel, move it or the rail")
+        if self.dove.access:
+            self.dove.check_access(self.s_range()[0], self.warnings,
+                                   lambda x, y, r: abs(x) + r <= self.W / 2 and abs(y) + r <= self.L / 2)
+            ra = self.dove.access_d / 2
+            for ax, ay in self.dove.access_points(self.s_range()[0]):
+                for x, y in self.holes:
+                    if math.hypot(ax - x, ay - y) < ra + self.hole_head / 2 + 1:
+                        raise ConfigError(f"plate hole ({x}, {y}) collides with a screw access hole at ({ax:.1f}, {ay:.1f})")
 
     def s_range(self):
         return (-self.L / 2, self.L / 2) if self.dove.axis == "y" else (-self.W / 2, self.W / 2)
@@ -539,6 +631,8 @@ class PlateAdapter:
             if rh > r:
                 part -= Pos(x, y, -0.01) * Cone(rh, r, rh - r, align=CMIN)
         part -= self.dove.channel_cuts(*self.s_range(), self.D)
+        if self.dove.access:
+            part -= self.dove.access_cuts(self.s_range()[0], self.D)
         return part
 
     def parts(self):
@@ -639,6 +733,9 @@ class Result:
         self.warnings = adapter.warnings
         self.printed = [(label, Pos(0, 0, -part.bounding_box().min.Z) * part) for label, part in parts]
         self.printed.append(("rail", rail))
+        spacer = dove.spacer()
+        if spacer is not None:
+            self.printed.append(("spacer", spacer))
 
     @property
     def body(self):
@@ -651,12 +748,14 @@ class Result:
         return None
 
     def count_of(self, label):
-        return len(self.dove.positions) if label == "rail" else 1
+        if label == "rail":
+            return self.dove.rail_count
+        return 2 if label == "spacer" else 1
 
     def color_of(self, label):
         if label == "adapter":
             return GREY
-        if label == "rail":
+        if label in ("rail", "spacer"):
             return RAIL
         prongs = [n for n, _ in self.parts[1:]]
         return PALETTE[prongs.index(label) % len(PALETTE)]
@@ -747,12 +846,25 @@ def report_lines(res):
     n_holes = 2 * len(dove.holes_y(dove.length))
     lines.append(f"rail         {len(dove.positions)} rail(s) {dove.length:.0f} mm long, slide along {dove.axis.upper()}, "
                  f"{n_holes} desk screws d{rh['diameter']} (countersunk d{rh['head']}) per rail")
+    if len(dove.positions) > 1:
+        lines.append(f"alignment    {rail_link_text(dove)}")
+    if dove.access:
+        lines.append(f"access       d{dove.access_d:.0f} holes through the adapter above every desk screw "
+                     f"(screw the rails with the adapter slid on as a jig, before fitting the device)")
     lines.append(f"locking      {locking_text(res)}")
     total = material_cm3(res)
     lines.append(f"material     {total:.1f} cm3 total (~{total * 1.24:.0f} g PLA / {total * 1.27:.0f} g PETG solid)")
     for w in res.warnings:
         lines.append(f"WARNING      {w}")
     return lines
+
+
+def rail_link_text(dove):
+    if dove.joined:
+        return f"rails joined into one part by {dove.bridge_width:.0f} mm bars at both ends"
+    if dove.link == "spacers":
+        return f"2 removable spacers ({dove.spacer_length:.0f} mm) hold the rail spacing while screwing"
+    return "separate rails, align them yourself"
 
 
 def locking_text(res):

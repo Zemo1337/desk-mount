@@ -75,6 +75,7 @@ select, input[type=text], input:not([type]) {
   padding: 4px 7px;
   min-width: 0;
 }
+select option { background: var(--panel); color: var(--text); }
 input:focus, select:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent-text); }
 .muted { color: var(--muted); }
 

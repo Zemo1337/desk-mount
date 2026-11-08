@@ -73,8 +73,10 @@ The overall adapter width follows from these: DW + 2 × FS + 2 × WT.
 | `rail.positions` | rail centre offsets across the slide direction. Use two rails for wide or heavy devices. |
 | `rail.length` | `auto` = the full adapter channel |
 | `rail.holes` | desk screws: diameter, countersink head, count per side (`auto` ≈ one every 80 mm) |
-| `rail.detent` | ridge height in mm (0 = off). `detent_distance` = how far before the stop it clicks. |
+| `rail.detent` | ridge height in mm (default 0.6, 0 = off). `detent_distance` = how far before the stop it clicks. |
 | `rail.lock_screw` | M3 screw through the adapter front into the tongue |
+| `rail.link` | with two or more rails: `bridge` (default) joins them into one printed part with bars at both ends. `spacers` keeps them separate and adds two removable jigs that slide onto all tongues to hold the spacing while screwing. `none` gives plain separate rails. |
+| `rail.access_holes` | `true` cuts holes through the adapter above every desk screw. Slide the adapter onto the rails, hold the set under the desk and screw through the adapter, so it acts as the alignment jig. Do this before fitting the device. The desk screws move further out so the holes stay clear of the load-bearing dovetail lips, which makes the rails wider. |
 | `dovetail.*` | neck width/height, flare, land, clearance, lip (wall beside the channel), floor, stop |
 
 Any `prong` default can be overridden per prong. `count` + `pitch` expand an entry into a row of prongs centred on `y`. Prongs of one side form one printed part. Use `group: <name>` to split them into separate parts. All defaults are listed at the top of `deskmount.py`.

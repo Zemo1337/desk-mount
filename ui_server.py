@@ -335,10 +335,19 @@ def main():
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--no-browser", action="store_true")
     args = ap.parse_args()
-    server_class = ThreadingHTTPServer
+    attrs = {}
+    if sys.platform.startswith("win"):
+        # SO_REUSEADDR on Windows lets a second server silently share the port
+        attrs["allow_reuse_address"] = False
     if ":" in args.host:
-        server_class = type("ThreadingHTTPServerV6", (ThreadingHTTPServer,), {"address_family": socket.AF_INET6})
-    server = server_class((args.host, args.port), Handler)
+        attrs["address_family"] = socket.AF_INET6
+    server_class = type("DeskMountServer", (ThreadingHTTPServer,), attrs)
+    try:
+        server = server_class((args.host, args.port), Handler)
+    except OSError as e:
+        print(f"Cannot listen on {args.host}:{args.port} ({e.strerror or e}). "
+              f"Is the UI already running? Use --port to pick another port.", file=sys.stderr)
+        sys.exit(1)
     wildcard = args.host in ("0.0.0.0", "::")
     shown = "localhost" if wildcard else (f"[{args.host}]" if ":" in args.host else args.host)
     url = f"http://{shown}:{args.port}/"

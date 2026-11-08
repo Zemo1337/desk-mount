@@ -55,6 +55,11 @@ const SECTIONS = [
     { k: 'rail.detent', label: 'Detent ridge height', unit: 'mm', type: 'num', help: 'Click strength. 0 = no detent. Tune with the fit test.' },
     { k: 'rail.detent_distance', label: 'Detent before stop', unit: 'mm', type: 'num', help: 'How far before the end of travel it clicks.' },
     { k: 'rail.lock_screw', label: 'Lock screw', type: 'bool', help: 'M3 screw through the adapter front into the tongue.' },
+    { k: 'rail.link', label: 'Several rails', type: 'select', options: [['bridge', 'Joined into one part'], ['spacers', 'Separate + spacers'], ['none', 'Separate']],
+      help: 'Only matters with two or more rails. Joined: one printed part with bars at both ends, always aligned. Spacers: separate rails plus two removable jigs that slide onto all tongues while you screw. Separate: align them yourself.' },
+    { k: 'rail.bridge_width', label: 'Joining bar width', unit: 'mm', type: 'num', help: 'Width of the bars that join the rails at both ends.' },
+    { k: 'rail.access_holes', label: 'Screw access holes', type: 'bool',
+      help: 'Holes through the adapter above every desk screw, so you can screw the rails with the adapter slid on as an alignment jig (before fitting the device). Moves the desk screws further out, which makes the rails wider.' },
     { k: 'rail.holes.diameter', label: 'Desk screw hole', unit: 'mm', type: 'num', help: 'Through hole for the wood screws into the desk.' },
     { k: 'rail.holes.head', label: 'Desk screw head', unit: 'mm', type: 'num', help: 'Countersink diameter.' },
     { k: 'rail.holes.count', label: 'Desk screws per side', type: 'int', auto: true, help: 'auto = about one every 80 mm, at least 2.' },
@@ -116,7 +121,7 @@ const hex = (n) => '#' + n.toString(16).padStart(6, '0');
 function colorFor(label, prongLabels) {
   const t = palette();
   if (label === 'adapter') return t.adapter;
-  if (label.startsWith('rail')) return t.rail;
+  if (label.startsWith('rail') || label === 'spacer') return t.rail;
   return t.prongs[Math.max(0, prongLabels.indexOf(label)) % t.prongs.length];
 }
 
