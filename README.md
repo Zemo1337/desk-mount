@@ -79,6 +79,15 @@ The overall adapter width follows from these: DW + 2 × FS + 2 × WT.
 | `rail.access_holes` | `true` cuts holes through the adapter above every desk screw. Slide the adapter onto the rails, hold the set under the desk and screw through the adapter, so it acts as the alignment jig. Do this before fitting the device. The desk screws move further out so the holes stay clear of the load-bearing dovetail lips, which makes the rails wider. |
 | `dovetail.*` | neck width/height, flare, land, clearance, lip (wall beside the channel), floor, stop |
 
+### Rounding
+
+`round.enabled` (default on) adds fillets where they're safe for fit and printing: the outer vertical corners (`round.corners`, default 3 mm) and the exposed top edges (`round.edges`, default 1 mm). These go on the adapter base and walls, rail plates, joining bars, prong head bars and spacers. Radii are reduced automatically for thin walls and bars.
+
+These stay sharp on purpose:
+* the dovetail tongue and channel, which need a precise fit
+* the prongs, which have to fill the slots
+* edges lying on the print bed, which would otherwise overhang
+
 Any `prong` default can be overridden per prong. `count` + `pitch` expand an entry into a row of prongs centred on `y`. Prongs of one side form one printed part. Use `group: <name>` to split them into separate parts. All defaults are listed at the top of `deskmount.py`.
 
 ## Setup

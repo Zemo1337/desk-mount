@@ -24,7 +24,7 @@ from pathlib import Path
 
 import yaml
 from build123d import (Align, Axis, Box, Compound, Cone, Cylinder, Plane, Polygon, Pos, Rot, chamfer, export_step,
-                       export_stl, extrude)
+                       export_stl, extrude, fillet)
 
 ROOT = Path(__file__).parent
 MIN = (Align.MIN, Align.MIN, Align.MIN)
@@ -51,6 +51,7 @@ DEFAULTS = {
     },
     "dovetail": {"neck": 14.0, "neck_height": 1.0, "flare": 3.0, "land": 1.0, "clearance": 0.3,
                  "lip": 5.0, "floor": 2.5, "stop": 6.0},
+    "round": {"enabled": True, "corners": 3.0, "edges": 1.0},
     "strength": {"allowable": 10.0, "load_factor": 2.0},
     "printer": {"bed": [256, 256]},
     "prongs": [],
@@ -93,6 +94,46 @@ def prism_x(points, x0, x1, z=0.0):
     """Extrude an (s, v) profile along +x from x0 to x1; s -> y, v -> z above z."""
     plane = Plane(origin=(x0, 0, z), x_dir=(0, 1, 0), z_dir=(1, 0, 0))
     return extrude(plane * Polygon(*points, align=None), amount=x1 - x0)
+
+
+class Rounding:
+    """Fillets on outer vertical corners and exposed top edges (print orientation, +z up)."""
+
+    def __init__(self, cfg):
+        r = cfg["round"]
+        self.on = bool(r["enabled"])
+        self.corner = float(r["corners"]) if self.on else 0.0
+        self.edge = float(r["edges"]) if self.on else 0.0
+        self.warnings = []
+
+    def apply(self, part, edges, radius, what):
+        edges = list(edges)
+        if radius <= 0.05 or not edges:
+            return part
+        try:
+            return fillet(edges, radius)
+        except Exception:
+            self.warnings.append(f"could not round {what} (r {radius:.1f} mm), left sharp")
+            return part
+
+    @staticmethod
+    def vertical(part, keep):
+        return [e for e in part.edges().filter_by(Axis.Z) if keep(e.center())]
+
+    @staticmethod
+    def horizontal_at(part, z, keep=lambda c: True):
+        return [e for e in part.edges()
+                if e.bounding_box().size.Z < 1e-6 and abs(e.center().Z - z) < 1e-4 and keep(e.center())]
+
+    def box(self, x0, x1, y0, y1, z0, z1, what, top=True, max_corner=None):
+        """Block with rounded vertical corners and (optionally) a rounded top edge loop."""
+        part = block(x0, x1, y0, y1, z0, z1)
+        rc = min(self.corner, abs(x1 - x0) / 2 - 0.1, abs(y1 - y0) / 2 - 0.1, max_corner or 1e9)
+        part = self.apply(part, part.edges().filter_by(Axis.Z), rc, what)
+        if top:
+            re = min(self.edge, abs(z1 - z0) - 0.1, max(rc, 0) if rc > 0.05 else 1e9)
+            part = self.apply(part, self.horizontal_at(part, max(z0, z1)), re, what)
+        return part
 
 
 def spread(lo, hi, count):
@@ -148,6 +189,7 @@ class Dovetail:
         else:
             self.hole_x = self.wt / 2 + 0.5 + self.hole_head / 2
         self.width = 2 * (self.hole_x + self.hole_head / 2 + self.hole_margin)
+        self.rnd = Rounding(cfg)
         self.joined = self.link == "bridge" and len(self.positions) > 1
         self.rail_count = 1 if self.joined else len(self.positions)
         if (self.hole_head - self.hole_d) / 2 >= self.Rt:
@@ -186,7 +228,7 @@ class Dovetail:
     def rail_body(self, t):
         """One rail without desk screw holes, centred on t (rail print coordinates)."""
         L, W, Rt = self.length, self.width, self.Rt
-        part = block(t - W / 2, t + W / 2, 0, L, 0, Rt)
+        part = self.rnd.box(t - W / 2, t + W / 2, 0, L, 0, Rt, "rail plate")
         part += prism_y(self.profile(bottom=-0.01), t, 0, L, Rt)
         if self.detent > 0:
             s, b = L - self.detent_dist, self.detent_base
@@ -217,7 +259,9 @@ class Dovetail:
             part = self.rail_body(t) if part is None else part + self.rail_body(t)
         bw, L = self.bridge_width, self.length
         for s0, s1 in ((0.0, bw), (L - bw, L)):
-            part += block(ts[0], ts[-1], s0, s1, 0, self.Rt)
+            bar = block(ts[0], ts[-1], s0, s1, 0, self.Rt)
+            bar = self.rnd.apply(bar, self.rnd.horizontal_at(bar, self.Rt), min(self.rnd.edge, self.Rt - 0.1), "joining bar")
+            part += bar
         return self.desk_holes(part, ts)
 
     def spacer(self):
@@ -227,7 +271,7 @@ class Dovetail:
         ts = [self.t_of(p) for p in self.positions]
         ls = self.spacer_length
         depth = self.h + self.c + self.detent + 2.5
-        part = block(min(ts) - self.strip / 2, max(ts) + self.strip / 2, 0, ls, 0, depth)
+        part = self.rnd.box(min(ts) - self.strip / 2, max(ts) + self.strip / 2, 0, ls, 0, depth, "spacer")
         for t in ts:
             part -= prism_y(self.profile(grow=self.c, top_extra=self.c + self.detent + 0.2, bottom=-1), t, -1, ls + 1)
         return part
@@ -481,6 +525,10 @@ class ProngAdapter:
             part -= window - self.dove.strips(s0, s1, self.D)
         for s in self.sides:
             part += block(self.x_in[s], self.x_out[s], self.y0, self.y1, self.D - 0.01, self.D + self.wall_h)
+        rnd = self.dove.rnd
+        at_end = lambda c: abs(c.Y - self.y0) < 1e-4 or abs(c.Y - self.y1) < 1e-4
+        part = rnd.apply(part, rnd.vertical(part, at_end), min(rnd.corner, self.T / 2 - 0.1), "adapter corners")
+        part = rnd.apply(part, rnd.horizontal_at(part, self.D + self.wall_h), min(rnd.edge, self.T / 2 - 0.1), "wall edges")
         for p in self.prongs:
             z0 = self.z_dev + p["offset"]
             z1 = z0 + p["thickness"]
@@ -511,7 +559,7 @@ class ProngAdapter:
             hx0 = hx1 = xo + (hd["inset"] if s == "a" else -hd["inset"])
         else:
             hx0, hx1 = (xo - hd["thickness"], xo) if s == "a" else (xo, xo + hd["thickness"])
-            part = block(hx0, hx1, g["y0"], g["y1"], g["z0"], g["bar_z1"])
+            part = self.dove.rnd.box(hx0, hx1, g["y0"], g["y1"], g["z0"], g["bar_z1"], "head bar")
         for p in g["prongs"]:
             tip = self.prong_tip(p)
             root = hx0 if s == "a" else hx1
@@ -624,7 +672,7 @@ class PlateAdapter:
         return (-self.L / 2, self.L / 2) if self.dove.axis == "y" else (-self.W / 2, self.W / 2)
 
     def body(self):
-        part = block(-self.W / 2, self.W / 2, -self.L / 2, self.L / 2, 0, self.D)
+        part = self.dove.rnd.box(-self.W / 2, self.W / 2, -self.L / 2, self.L / 2, 0, self.D, "plate")
         r, rh = self.hole_d / 2, self.hole_head / 2
         for x, y in self.holes:
             part -= Pos(x, y, -1) * Cylinder(r, self.D + 2, align=CMIN)
@@ -805,6 +853,7 @@ def generate(raw, name):
             if (r & p).volume > 0.01:
                 adapter.warnings.append(f"rail {i} intersects {n}")
     res = Result(name, cfg, dove, adapter, parts, rail, rails)
+    adapter.warnings.extend(dove.rnd.warnings)
     bed = sorted(float(v) for v in cfg["printer"]["bed"])
     for label, part in res.printed:
         size = sorted([part.bounding_box().size.X, part.bounding_box().size.Y])

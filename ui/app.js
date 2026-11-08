@@ -74,6 +74,12 @@ const SECTIONS = [
     { k: 'head.screws', label: 'Screws per head bar', type: 'int', auto: true, help: 'auto = 1 below 50 mm bar length, else 2.' },
     { k: 'through_protrusion', label: 'Through-prong protrusion', unit: 'mm', type: 'num', help: 'How far a through-prong sticks out of wall B.' },
   ] },
+  { title: 'Rounding', fields: [
+    { k: 'round.enabled', label: 'Round corners and edges', type: 'bool',
+      help: 'Fillets on outer corners and exposed edges. The dovetail, the prongs and edges on the print bed stay sharp for fit and printability.' },
+    { k: 'round.corners', label: 'Corner radius', unit: 'mm', type: 'num', help: 'Outer vertical corners. Limited automatically to what the wall or bar thickness allows.' },
+    { k: 'round.edges', label: 'Edge radius', unit: 'mm', type: 'num', help: 'Exposed top edges, e.g. the free edges of the walls and rail plates.' },
+  ] },
   { title: 'Screws (M3)', advanced: true, fields: [
     { k: 'screw.clearance', label: 'Clearance hole', unit: 'mm', type: 'num', help: 'Hole the screw passes through.' },
     { k: 'screw.pilot', label: 'Pilot hole', unit: 'mm', type: 'num', help: 'Hole the self-tapping screw cuts its thread into.' },
